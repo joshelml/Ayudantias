@@ -83,8 +83,13 @@ summary(modelo_back)
 
 # method = forward --------------------------------------------------------
 
- 
+modelo_full = formula(lm(mpg ~., data = auto_mpg))
 
+modelo_for <- step(object = lm(mpg ~ 1, data = auto_mpg),
+                   scope = modelo_full,
+                   direction = 'forward',
+                   trace = 0)
+summary(modelo_for)
 
 
 
