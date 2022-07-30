@@ -229,6 +229,22 @@ broom::tidy(modelo1) %>%
 
 # 4 -----------------------------------------------------------------------
 
+modelo_completo <- glm(Estado ~ ., data = train,
+                       family = binomial(link = 'logit'))
+
+modelo_back <- step(modelo_completo,
+                    direction = 'backward',
+                    trace = 0)
+
+summary(modelo_back)
+#modelo final
+modelo_back$formula
+
+broom::tidy(modelo_back) %>%
+  mutate(OR = exp(estimate))
+
+
+# 5 -----------------------------------------------------------------------
 
 
 
