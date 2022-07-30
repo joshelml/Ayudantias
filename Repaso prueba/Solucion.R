@@ -246,5 +246,61 @@ broom::tidy(modelo_back) %>%
 
 # 5 -----------------------------------------------------------------------
 
+probs <- predict.glm(modelo_back, newdata = test, type = 'response')
+probs %>% head()
+
+#probs < 0.5, 0, 1
+# probs <= 1, 
+# 6 -----------------------------------------------------------------------
+
+InformationValue::plotROC(test$Estado, probs, returnSensitivityMat = TRUE)
+corte <- 0.46
+#InformationValue::optimalCutoff(test$Estado, probs,
+#                                optimiseFor = 'Both')
+
+
+# 7 -----------------------------------------------------------------------
+
+#Metricas:
+pred <- ifelse(probs >= corte, 1, 0) %>% 
+  factor(., levels = c(1, 0))
+
+#Matriz de confusion
+caret::confusionMatrix(as.factor(pred),
+                       factor(test$Estado, levels = c(1, 0))
+                       )
+# Evaluando el modelo
+## Area bajo la curva ROC
+
+InformationValue::AUROC(test$Estado, probs)
+
+
+#Test Kologorov-Smirnov
+#H0: Si la distibución empirica es similar a la teórica.
+#H1: Si la distibución empirica es distinta a la teórica.
+
+ks.test(x = test$Estado, y = ifelse(probs >= corte, 1, 0))$p.value
+#como el valos p es mayor a 0.05, entonces cumple con el supuesto de que
+#la distribución empirica es similar a la teórica.
+
+
+#Test de Hosmer-Lemeshow
+#H0: No hay diferencia entre los valores observados y los valores predichos.
+#H1: Existe diferencia entre los valores observados y los valores predichos.
+
+DescTools::HosmerLemeshowTest(fit = probs, obs = test$Estado)
+
+# otra forma
+
+ResourceSelection::hoslem.test(test$Estado, 
+                               predict(modelo_back, newdata = test))$p.value
+
+#parentesis, no estoy segura si este test se hace.
+
+ResourceSelection::hoslem.test(train$Estado, 
+                               fitted(modelo_back))$p.value
+
+#Al parecer nuestro modelo se ajusta bien a los datos.
+
 
 
