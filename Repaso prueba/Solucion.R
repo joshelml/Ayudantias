@@ -138,11 +138,15 @@ lmtest::bptest(modelo_both)
 # En general nuestro modelo no es bueno.
 
 
+# 5 -----------------------------------------------------------------------
 
+informacion <- data.frame(cylinders= 6, displacement= 390, horsepower= 110, 
+                         weight = 3021, accceleration = 13.5, model_year = 80, 
+                         origin = 'EEUU')
 
+informacion
 
-
-
+predict(modelo_both, informacion)
 
 
 
