@@ -36,6 +36,24 @@ auto_mpg <- drop_na(auto_mpg)
 auto_mpg %>% summary()
 
 
+# 2 -----------------------------------------------------------------------
+
+auto_mpg %>% 
+  ggplot(aes(x = weight, y = mpg)) + 
+  geom_point() +
+  geom_smooth(method = lm, formula = y ~ x)
+
+# Se observa que existe una relación negativa, es decir, a mayor 
+# millas por galon de consumo menor es el peso del automovil.
+#los vehiculos livianos recorren más millas por galon.
+
+auto_mpg %>% 
+  ggplot(aes(x = weight, y = mpg, col = origin)) + 
+  geom_point() +
+  geom_smooth(method = lm, formula = y ~ x)
+
+auto_mpg$origin %>% table()
+
 
 
 
