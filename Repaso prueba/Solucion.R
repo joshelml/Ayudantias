@@ -145,15 +145,53 @@ informacion <- data.frame(cylinders= 6, displacement= 390, horsepower= 110,
                          origin = 'EEUU')
 
 informacion
-
+# mpg = b0 + cylinders*x1 + ....
 predict(modelo_both, informacion)
 
 
+summary(modelo_both)
+
+#Weight:HorsePower interacciones dentro del modelo
 
 
+# Pregunta 2 --------------------------------------------------------------
 
 
+# 1 -----------------------------------------------------------------------
 
+datos <- readr::read_csv("Repaso prueba/datos/rrhh.csv")
+datos %>% summary()
+
+datos %>% glimpse()
+
+datos <- datos %>% 
+  mutate(Estado.Civil = case_when(Estado.Civil == 1 ~ 'Divorciado',
+                                  Estado.Civil == 2 ~ 'Casado',
+                                  Estado.Civil == 3 ~ 'Separado',
+                                  Estado.Civil == 4 ~ 'Soltero',
+                                  Estado.Civil == 5 ~ 'Viudo'))
+
+datos <- datos %>% 
+  mutate_if(is.character, as.factor)
+
+datos %>% glimpse()
+
+
+# 2 -----------------------------------------------------------------------
+
+set.seed(2022)
+id <- sample(1:nrow(datos), size = 0.75*nrow(datos), replace = FALSE)
+
+#Forma 1
+train <- datos %>% 
+  slice(id)
+
+test <- datos %>% 
+  slice(-id)
+
+#Forma 2
+train <- datos[id, ]
+test <- datos[-id, ]
 
 
 
