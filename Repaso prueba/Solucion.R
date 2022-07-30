@@ -92,4 +92,68 @@ modelo_for <- step(object = lm(mpg ~ 1, data = auto_mpg),
 summary(modelo_for)
 
 
+# 4 -----------------------------------------------------------------------
+
+## Analizar supuesto de normalidad de los residuos
+
+### grafico
+ggplot(data = NULL, aes(sample = modelo_both$residuals)) +
+  stat_qq() + stat_qq_line(col = 'purple')
+
+### test
+### H0: los residuos siguen una distribución normal
+### H1: los residuos no siguen una distribución normal
+
+nortest::lillie.test(modelo_both$residuals)
+
+# los residuos no siguen una distibución normal.
+
+
+## Independecia de los residuos
+
+### Test Durbin Watson
+
+### H0: los residuos no estan autocorrelacionados
+### H1: los residuos estan autocorrelacionados
+
+lmtest::dwtest(modelo_both)
+plot(modelo_both) #graficos del modelo
+# Rechazamos la hipotesis nula, por lo que los residuos no son
+#independientes.
+
+## Homocedasticidad
+### H0: Homocedasticidad
+### H1: Heterocedasticidad
+
+library(ggfortify)
+#plot(modelo_both, 1)
+#plot(modelo_both, 3)
+autoplot(modelo_both, which = 1:6, ncol = 2, label.size = 3)[c(1, 3)]
+
+### Test Breusch Pagan
+### H0: Homocedasticidad
+### H1: Heterocedasticidad
+lmtest::bptest(modelo_both)
+
+# En general nuestro modelo no es bueno.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
