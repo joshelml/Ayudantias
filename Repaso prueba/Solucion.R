@@ -55,5 +55,36 @@ auto_mpg %>%
 auto_mpg$origin %>% table()
 
 
+# 3 -----------------------------------------------------------------------
+
+auto_mpg %>% glimpse()
+auto_mpg <- auto_mpg %>%  
+  select(-car_name)
+
+modelo_lm <- lm(mpg ~., data = auto_mpg )
+summary(modelo_lm)
+
+
+# method = both -----------------------------------------------------------
+
+modelo_both <- step(modelo_lm, method = 'both',
+                    trace = 0)
+summary(modelo_both)
+
+
+# method = backward -------------------------------------------------------
+
+
+modelo_back <- step(modelo_lm, 
+                    direction = 'backward',
+                    trace = 0)
+summary(modelo_back)
+
+
+# method = forward --------------------------------------------------------
+
+ 
+
+
 
 
