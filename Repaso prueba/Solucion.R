@@ -194,7 +194,40 @@ train <- datos[id, ]
 test <- datos[-id, ]
 
 
+# 3 -----------------------------------------------------------------------
 
+## primero veamos la variable desempeño
+train$Desempeño %>% unique()
+
+##--
+#cambiar la categoria basal
+stats::relevel(train$Desempeño, ref = '90-day meets')
+##--
+
+modelo1 <- glm(Estado ~ Edad + Desempeño, data = train, 
+               family = binomial(link = 'logit'))
+summary(modelo1)
+
+# b > 0 agravante 
+# b < 0 protector
+
+# Calcular OR
+
+broom::tidy(modelo1) %>% 
+  mutate(OR = exp(estimate))
+
+#OR > 1 factor de riesgo de la desvinculación
+# Edad: por cada aumento en la edad la chance de desvinculación aumenta en un 4%
+# (90-day meets) Desempeño: Aumenta el chance de desvinculación de un 67% si la
+#categoria es PIP frente a 90-day meets.
+
+#Si la variable es de tipo factor, entonces el aumento o disminucion de chance
+#es frente a la categoria que "quedo afuera" o la categoria basal.
+
+#Desempeño 2: Disminuye el chance de desvinculación en un 99% si la categoría es
+#Exceptional frente a 90-day meets.
+
+# 4 -----------------------------------------------------------------------
 
 
 
