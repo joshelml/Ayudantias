@@ -90,7 +90,7 @@ modelo_for <- step(object = lm(mpg ~ 1, data = auto_mpg),
                    direction = 'forward',
                    trace = 0)
 summary(modelo_for)
-
+?step
 
 # 4 -----------------------------------------------------------------------
 
@@ -249,8 +249,6 @@ broom::tidy(modelo_back) %>%
 probs <- predict.glm(modelo_back, newdata = test, type = 'response')
 probs %>% head()
 
-#probs < 0.5, 0, 1
-# probs <= 1, 
 # 6 -----------------------------------------------------------------------
 
 InformationValue::plotROC(test$Estado, probs, returnSensitivityMat = TRUE)
@@ -295,10 +293,6 @@ DescTools::HosmerLemeshowTest(fit = probs, obs = test$Estado)
 ResourceSelection::hoslem.test(test$Estado, 
                                predict(modelo_back, newdata = test))$p.value
 
-#parentesis, no estoy segura si este test se hace.
-
-ResourceSelection::hoslem.test(train$Estado, 
-                               fitted(modelo_back))$p.value
 
 #Al parecer nuestro modelo se ajusta bien a los datos.
 
