@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Ayudantía 2- Arboles de decisión y Random Forest</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Javiera Preuss- Josefa Silva" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: left, bottom
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Escudo_de_la_Pontificia_Universidad_Cat%C3%B3lica_de_Chile.svg" width="150px"&gt;
+
+# Ayudantía 2- Arboles de decisión y Random Forest
+## Diplomado en Data Science 2022
+
+.center[
+----
+## Javiera Preuss- Josefa Silva
+### javiera.preuss@uc.cl - josefa.silva@uc.cl
+]
+
+
+
+
+
+&lt;style type="text/css"&gt;
+
+.remark-slide-content {
+    font-size: 25px;
+}
+
+p{
+text-align: justify;
+}
+
+.azul{
+color:#23395b ;
+}
+
+code.bold{
+font-weight: bold;
+}
+
+.blanco{
+color: white;
+}
+
+code.blanco{
+color: white;
+font-weight: bold;
+}
+
+.small{ font-size: 70% }
+
+.large{ font-size: 130% }
+
+
+tr:nth-child(odd) {background-color: #f5f5f5;}
+
+tr.high {
+  background-color: #e64964;
+  color: white;
+}
+
+td.high {
+  background-color: #e64964;
+  color: white;
+}
+th.high {
+  background-color: #e64964;
+  color: white;
+}
+
+td {
+  text-align: center;
+}
+
+
+&lt;/style&gt; 
+
+---
+
+
+class: inverse, middle
+
+#Repaso
+---
+
+# Árbol de decisión
+
+Corresponde a una técnica de Machine Learning de tipo Supervisado. Al final del entrenamiento, se obtienen secuencias de preguntas de los datos que llevan a un resultado o *preducción*. Un plus que tiene esta técnica es que posible visualizar las secuancias de preguntas en forma de árbil, siendo fácil de explicar y comprender para la audiencia.
+
+Los árboles de decisión se clasifican en:
+ 
+* Árbol de Regresión: Cuando la variable **Y** output es numérica. Ejemplo: Determinar las secuencias de preguntas adecuadas de modo de predecir el salario de un colaborador.
+* Árbol de Clasificación: Cuando la variable **Y** output es categórica: Ejemplo: Determinar las secuencias de las preguntas adecuadas de modo de predecir el fallo o no fallo de un producto.
+---
+## Ejemplo árbol de Clasificación: ¿Debería aceptar un nuevo empleo?
+
+Podemos observar las siguientes partes del árbol:
+
+.pull-left[
+
+* Cada nodo de decisión (decision node) representa una pregunta sobre un atributo. El nodo raíz (root node) corresponde a la primera pregunta.
+* Cada rama representa una posible respuesta a las preguntas.
+* Cada hoja o nodo terminal (leaf node) representa la clase o prediccón al seguir ese camino.
+]
+
+.pull-right[
+&lt;img src="clasificacion.webp" width="550px" /&gt;
+]
+
+---
+
+## Árbol de clasificación: ¿Cómo se obtienen las preguntas?
+
+**1.** Si todas las observaciones pertenecen a la misma
+clase o categoría, se crea un nodo terminal con
+dicha categoría.
+**2** Si no, se recurre a algún método para determinar la
+primera pregunta o criterio de separación, la idea
+es obtener particiones puras (que los grupos estén
+en la menor medida posible mezclados, es decir
+más homogéneos).
+**3** Se crea el primer nodo el criterio de separación
+encontrado, este proceso se itera de forma de
+añadir ramas y nodos de forma anidada hasta que
+ocurra alguno de los siguientes casos:
+
+* Todas las tuplas pertenecen a la misma clase.
+* No hay más atributos para particionar.
+* Ya no hay más datos. 
+
+---
+
+## Entropía o Ganancia de información 
+La información esperada necesaria o entropía, para clasificar una tupla en alguna de las `\(C_1, ...,C_n\)` clases es: 
+
+`$$Info(D) = -\sum^m_{i=1}p_ilog_2(p_i)$$`
+Donde `\(p_i\)` consiste en la probabilidad de pertenecer a la clase `\(C_i\)`. Para saber cuánto es el grado de entropía luego de la partición sugerida por el atributo `\(A\)`, calculamos:
+
+`$$Info_A(D) = -\sum^v_{j=1}q_j*Info(D_j)$$`
+
+Donde `\(q_j\)` corresponde a la probabilidad de pertenecer a la categoría `\(j\)` del atributo `\(A\)`.
+
+---
+## Impureza de Gini 
+
+Los datos se dividen según el atributo `\(A\)`, en dos regiones, `\(A_1\)` y `\(A_2\)`, con `\(n_1\)` y `\(n_2\)` elementos, respectivamente. `\(p_{ij}\)` corresponde a la proporción de elementos en `\(A_j\)` con `\(j = 1,2\)` que pertenecen a la
+clase `\(i\)` con `\(i =1,...,m\)`. 
+
+La impureza de Gini `\(I(A_j)\)` se calcula: 
+
+`$$\begin{split}
+&amp;= p_{j1}(1 - p_{j1}) + p_{j2}(1-p_{j2})+...+p_{jm}(1-p_{jm}) \\
+\\
+&amp;= \sum_{i=1}^mp_{ji}(1-p_{ji}) \ = \sum_{i=1}^m(p_{ji} - p_{ji}^2) \\
+\\
+&amp;= \sum_{i=1}^mp_{ji} - \sum_{i=1}^mp_{ji}^2 \ = 1 - \sum_{i=1}^m p_{ji}^2
+\end{split}$$`
+
+---
+
+--- 
+
+Y el índice de Gini se calcula:
+
+`$$Gini(A) = q_1 I(A_1) + q_2 I(A_2)$$`
+
+Donde `\(q_i\)` corresponde a la probabilidad de pertenecer a la categoría `\(j\)` del atributo `\(A\)`.
+
+---
+
+.pull-left[
+
+## Bosque de árboles
+
+Corresponde a una técnica de Machine Learning que se basa en un conjunto de árboles de decisiones seleccionado aleatoriamente submuestras (con reemplazamiento) para elaborar cada árbol.
+
+El punto clave del Bosque de utilizar una serie de árboles de decisión (diferentes individuos y diferentes variables), con el fin de mejorar la tasa de clasificación correcta. La diferencia con el bagging es que en el bosque de árboles también se toma una muestra de los features, es decir, no se utilizan todas las variables como en bagging.
+]
+
+.pull-right[
+
+&lt;img src="randomfores.svg" width="550px" /&gt;
+]
+
+---
+class: inverse, middle
+
+# Arboles de decisión
+# Bagging
+# Random Forest
+
+---
+El Departamento de Colocación `\(^1\)` del área de posgrados en negocios en la Universidad de Jain,
+India está buscando determinar los factores que influyen en que sus estudiantes encuentren
+trabajo o no. La base de datos Placement_Data_Full_Class.csv contiene información de
+215 estudiantes egresados en el MBA de Bussiness Analytics, esta base de datos se puede
+encontrar el el siguiente [enlace de Kaggle](https://www.kaggle.com/datasets/benroshan/factors-affecting-campus-placement).
+
+&lt;center&gt;
+
+&lt;img src="imagen.png" width="500px" /&gt;
+
+&lt;/center&gt;
+
+
+1. El Departamento de Colocación es el organismo encargado de buscar un empleo adecuado para quienes lo soliciten, es este caso, manejado por la escuela de negocios en cuestión.
+
+---
+
+
+
+.small[
+|  Nombre | Descripción  |
+|---|---|
+| sl_no | Número de fila.|
+| gender |  Género del estudiante (M: Hombre, F: Mujer). |
+| ssc_p | Calificación de la escuela en 1°-10° Grado (en porcentaje). |
+| ssc_b | Tipo de Junta de Educación en 1°-10° Grado (Central/Other). |
+| hsc_p | Calificación de la escuela en 11°-12° Grado (en porcentaje).|
+| hsc_b | Tipo de Junta de Educación en 11°-12° Grado (Central/Other).|
+| hsc_s | Especialización en la escuela en 11°-12° Grado. |
+| degree_p | Calificación en el grado de educación superior (en porcentaje). |
+| degree_t |Área del grado de educación superior.|
+| workex | Experiencia laboral (Yes/No) |
+| etest_p | Calificación del test de empleabilidad (en porcentaje). |
+|  specialisation | Categoría de especialización del MBA. |
+|  mba_p | Calificación del MBA (en porcentaje). |
+|  status | Indicador si tiene o no un ofrecimiento de trabajo (Placed/Not Placed). |
+|  salary | Sueldo ofrecido a los candidatos.|
+]
+
+---
+Interesa determinar qué características de egresados se relacionan con una mayor probabilidad
+de caer en el grupo que tiene Oferta de trabajo (Placed).
+
+a) Cargue la base de datos. ¿Hay alguna columna que no sea necesaria en la base de datos?
+Realice el cambio que estime pertinente.
+
+
+b) Determine si existen o no datos faltantes, visualice la proporción de datos faltantes en la base
+de datos. ¿En qué variable hay mayor cantidad de datos faltantes? ¿Qué haría en este caso con
+los casos con datos faltantes? Discuta.
+
+ 
+c) ¿Cuántos egresados tienen una oferta de trabajo posterior al MBA? ¿Cuántos no? ¿Por qué es
+importante revisar esto antes o posterior a particionar la data en split de entrenamiento y test?
+Discuta.
+
+d) Obtenga el set de entrenamiento y testeo en una proporción 70% y 30% respectivamente
+(recuerde definir apropiadamente X e y). Verifique que en cada set existen observaciones de
+ambas clases.
+
+---
+
+e) Entrene el árbol de decisión fijando una profundidad máxima, grafique y describa los distintos
+perfiles que se asocian a una mayor probabilidad de tener una oferta de trabajo una vez
+egresados del MBA.
+
+f) Evalúe el poder predictivo del árbol anterior. ¿Confiaría usted en este árbol como una
+herramienta para predecir si un egresado del MBA encontrará trabajo? ¿Y para predecir si NO
+encontrará trabajo? Discuta.
+
+g) Pruebe alguna variante relacionada con los árboles de decisión y evalúe nuevamente el poder
+predictivo. ¿Cuál es el pero de esta opción? Comente.
+
+---
+
+class: inverse, middle
+
+# ¿Consultas?
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
